@@ -1,0 +1,515 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Valentine Hub | For Khanjanakshi</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background: #fff5f7;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            margin: 0;
+        }
+        
+        .cursive {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        /* Access Denied Gate Screen */
+        #gate-screen {
+            position: fixed;
+            inset: 0;
+            background: #fff5f7;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+            text-align: center;
+            padding: 20px;
+            cursor: pointer;
+        }
+
+        .hub-container {
+            display: none;
+            position: relative;
+            width: 100%;
+            height: 100%;
+            max-width: 800px;
+            max-height: 800px;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .unlocked .hub-container {
+            display: block;
+            opacity: 1;
+        }
+
+        /* Cute Button Styling */
+        .corner-btn {
+            position: absolute;
+            width: 120px;
+            height: 120px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: white;
+            border-radius: 2rem;
+            box-shadow: 0 10px 25px rgba(244, 63, 94, 0.1);
+            border: 2px solid #fee2e2;
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        .corner-btn:hover {
+            transform: scale(1.1) rotate(3deg);
+            box-shadow: 0 15px 30px rgba(244, 63, 94, 0.2);
+            border-color: #fda4af;
+        }
+
+        .center-btn {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 200px;
+            height: 200px;
+            background: #f43f5e;
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 20px 40px rgba(244, 63, 94, 0.3);
+            border: 8px solid white;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            cursor: pointer;
+            z-index: 20;
+        }
+
+        .center-btn:hover {
+            transform: translate(-50%, -50%) scale(1.05);
+            box-shadow: 0 25px 50px rgba(244, 63, 94, 0.4);
+        }
+
+        /* Modal Overlays */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 245, 247, 0.95);
+            backdrop-filter: blur(8px);
+            z-index: 50;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: opacity 0.5s ease;
+        }
+
+        /* Animations */
+        .box-container {
+            position: relative;
+            width: 200px;
+            height: 200px;
+            margin-top: 50px;
+        }
+        .box-body {
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            height: 120px;
+            background: #f43f5e;
+            border-radius: 0 0 10px 10px;
+            z-index: 2;
+        }
+        .box-lid {
+            position: absolute;
+            bottom: 120px;
+            width: 110%;
+            left: -5%;
+            height: 30px;
+            background: #e11d48;
+            border-radius: 5px;
+            z-index: 4;
+            transition: transform 1s ease;
+            transform-origin: left;
+        }
+        .video-placeholder {
+            position: absolute;
+            bottom: 20px;
+            left: 10%;
+            width: 80%;
+            height: 150px;
+            background: black;
+            border: 5px solid white;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            z-index: 1;
+            transition: transform 2s ease 0.5s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        .box-container.open .box-lid { transform: rotate(-110deg); }
+        .box-container.open .video-placeholder { transform: translateY(-130px); }
+
+        /* Kiss & Heart Animation */
+        .particle-emoji {
+            position: absolute;
+            z-index: 60;
+            pointer-events: none;
+            font-size: 2.5rem;
+            opacity: 0;
+        }
+        @keyframes flyParticle {
+            0% { 
+                transform: scale(0) translate(0, 0) rotate(0deg); 
+                opacity: 0; 
+            }
+            20% { opacity: 1; }
+            100% { 
+                transform: scale(1.5) translate(var(--x), -400px) rotate(var(--r)); 
+                opacity: 0; 
+            }
+        }
+
+        /* Frame Effect (Previously Sketch) */
+        .video-frame-outer {
+            position: relative;
+            width: 280px;
+            height: 350px;
+            background: #fff;
+            padding: 12px 12px 40px 12px;
+            border: 1px solid #eee;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+            transform: rotate(-2deg);
+        }
+        .video-content-main {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 2px;
+        }
+
+        /* Envelope Animation */
+        .envelope-wrapper {
+            position: relative;
+            width: 300px;
+            height: 200px;
+            background: #fda4af;
+            border-radius: 0 0 5px 5px;
+            display: flex;
+            justify-content: center;
+        }
+        .envelope-flap {
+            position: absolute;
+            top: 0;
+            width: 0;
+            height: 0;
+            border-left: 150px solid transparent;
+            border-right: 150px solid transparent;
+            border-top: 100px solid #f43f5e;
+            transform-origin: top;
+            transition: transform 0.8s ease;
+            z-index: 3;
+        }
+        .letter {
+            position: absolute;
+            bottom: 10px;
+            width: 90%;
+            height: 180px;
+            background: white;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            z-index: 1;
+            transition: transform 1s ease 0.5s;
+            text-align: center;
+        }
+        .envelope-wrapper.open .envelope-flap { transform: rotateX(180deg); z-index: 0; }
+        .envelope-wrapper.open .letter { transform: translateY(-100px); }
+
+        /* Floating Hearts Background */
+        .heart-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .floating-heart {
+            position: absolute;
+            color: #fca5a5;
+            opacity: 0.3;
+            animation: float 10s infinite linear;
+        }
+
+        @keyframes float {
+            0% { transform: translateY(110vh) rotate(0deg); opacity: 0; }
+            10% { opacity: 0.3; }
+            90% { opacity: 0.3; }
+            100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+        }
+
+        .top-left { top: 40px; left: 40px; }
+        .top-right { top: 40px; right: 40px; }
+        .bottom-left { bottom: 40px; left: 40px; }
+        .bottom-right { bottom: 40px; right: 40px; }
+
+        @media (max-width: 640px) {
+            .corner-btn { width: 100px; height: 100px; }
+            .top-left { top: 20px; left: 20px; }
+            .top-right { top: 20px; right: 20px; }
+            .bottom-left { bottom: 20px; left: 20px; }
+            .bottom-right { bottom: 20px; right: 20px; }
+            .center-btn { width: 160px; height: 160px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Security Gate -->
+    <div id="gate-screen">
+        <div class="space-y-4 max-w-xs text-center">
+            <span class="text-4xl animate-bounce">💖</span>
+            <h1 class="text-2xl font-bold text-gray-800 cursive">Special Delivery</h1>
+            <p class="text-gray-500 text-sm">you are not the correct receiver. this is for someone special</p>
+        </div>
+    </div>
+
+    <!-- Main Hub -->
+    <div class="hub-container" id="hub">
+        <div id="heart-container" class="heart-bg"></div>
+
+        <div class="corner-btn top-left" onclick="showModal('teddy')">
+            <span class="text-3xl mb-1">🧸</span>
+            <span class="text-xs font-bold text-rose-400 uppercase tracking-tighter">Teddy Day</span>
+        </div>
+
+        <div class="corner-btn top-right" onclick="showModal('promise')">
+            <span class="text-3xl mb-1">🤝</span>
+            <span class="text-xs font-bold text-rose-400 uppercase tracking-tighter">Promise Day</span>
+        </div>
+
+        <div class="corner-btn bottom-left" onclick="showModal('kiss')">
+            <span class="text-3xl mb-1">💋</span>
+            <span class="text-xs font-bold text-rose-400 uppercase tracking-tighter">Kiss Day</span>
+        </div>
+
+        <div class="corner-btn bottom-right" onclick="showModal('hug')">
+            <span class="text-3xl mb-1">🫂</span>
+            <span class="text-xs font-bold text-rose-400 uppercase tracking-tighter">Hug Day</span>
+        </div>
+
+        <div class="center-btn" onclick="showModal('valentine')">
+            <span class="text-5xl mb-2">❤️</span>
+            <span class="text-lg font-bold cursive">Valentine's Day</span>
+        </div>
+
+        <div class="absolute bottom-8 left-0 w-full text-center">
+            <p class="cursive text-rose-400 text-2xl">Something special for every day...</p>
+        </div>
+    </div>
+
+    <!-- Teddy Modal -->
+    <div id="teddy-modal" class="modal-overlay" onclick="hideModal('teddy')">
+        <div class="flex flex-col items-center">
+            <div id="teddy-box" class="box-container">
+                <div class="box-lid"></div>
+                <div class="box-body"></div>
+                <div class="video-placeholder">
+                    <!-- UPLOAD 'teddy.mp4' TO GITHUB -->
+                    <video id="teddy-video" src="video.mp4" class="w-full h-full object-cover" muted loop playsinline></video>
+                </div>
+            </div>
+            <p class="cursive text-rose-500 text-3xl mt-12 opacity-0 transition-opacity duration-1000" id="teddy-text">A little surprise for you!</p>
+        </div>
+    </div>
+
+    <!-- Promise Modal -->
+    <div id="promise-modal" class="modal-overlay" onclick="hideModal('promise')">
+        <div class="flex flex-col items-center">
+            <div id="promise-envelope" class="envelope-wrapper">
+                <div class="envelope-flap"></div>
+                <div class="letter">
+                    <p class="cursive text-rose-600 text-2xl mt-4">My Promise</p>
+                    <div class="h-px bg-rose-100 w-full my-4"></div>
+                    <p class="text-gray-700 text-lg italic leading-relaxed">
+                        "I promise to make you laugh every single day."
+                    </p>
+                    <p class="cursive text-rose-400 mt-6 text-xl">❤️</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Kiss Modal -->
+    <div id="kiss-modal" class="modal-overlay" onclick="hideModal('kiss')">
+        <div class="flex flex-col items-center relative">
+            <div id="kiss-box" class="box-container">
+                <div class="box-lid"></div>
+                <div class="box-body"></div>
+            </div>
+            <div class="mt-8 text-center px-6">
+                <p class="text-gray-400 text-sm italic mb-2">her mind —</p>
+                <p class="cursive text-rose-500 text-2xl">"this is what you want every time you sly..."</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hug Modal -->
+    <div id="hug-modal" class="modal-overlay" onclick="hideModal('hug')">
+        <div class="bg-white p-10 rounded-[3rem] shadow-xl border-2 border-rose-50 text-center max-w-sm" onclick="event.stopPropagation()">
+            <div class="text-5xl mb-6">🫂</div>
+            <p class="text-gray-700 text-xl font-medium leading-relaxed mb-6">
+                "hugs are really soothing in your arms when our necks touch"
+            </p>
+            <div class="h-px bg-rose-50 w-full mb-6"></div>
+            <p class="text-gray-400 text-sm italic mb-1">her mind —</p>
+            <p class="cursive text-rose-400 text-xl">"okayyy but I know your intentions"</p>
+        </div>
+    </div>
+
+    <!-- Valentine Modal (Final Reveal) -->
+    <div id="valentine-modal" class="modal-overlay" onclick="hideModal('valentine')">
+        <div class="flex flex-col items-center max-w-md w-full px-6 text-center">
+            <div class="video-frame-outer mb-8 transition-all duration-1000 transform opacity-0 translate-y-10" id="valentine-frame-el">
+                <!-- UPLOAD 'valentine.mp4' TO GITHUB -->
+                <video id="val-video" src="gif.mp4" class="video-content-main" muted loop playsinline></video>
+            </div>
+            <div class="space-y-4 opacity-0 transition-opacity duration-1000 delay-500" id="valentine-message">
+                <h2 class="cursive text-rose-600 text-4xl">Happy Valentine's Day love</h2>
+                <p class="text-gray-700 italic text-lg leading-relaxed">
+                    "I don't want to take my eyes off of your beautiful face."
+                </p>
+                <p class="cursive text-rose-400 text-2xl">Forever yours ❤️</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function createHearts() {
+            const container = document.getElementById('heart-container');
+            const heartTypes = ['❤️', '💖', '💕', '💗'];
+            for (let i = 0; i < 20; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'floating-heart';
+                heart.textContent = heartTypes[Math.floor(Math.random() * heartTypes.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 5 + 5) + 's';
+                heart.style.animationDelay = (Math.random() * 5) + 's';
+                heart.style.fontSize = (Math.random() * 20 + 10) + 'px';
+                container.appendChild(heart);
+            }
+        }
+
+        function unlock() {
+            if (document.body.classList.contains('unlocked')) return;
+            document.body.classList.add('unlocked');
+            document.getElementById('gate-screen').style.display = 'none';
+            createHearts();
+            try {
+                if (window.location.protocol !== 'blob:') {
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            } catch (e) {}
+        }
+
+        let particleInterval;
+
+        function showModal(type) {
+            const modal = document.getElementById(`${type}-modal`);
+            modal.style.display = 'flex';
+            
+            setTimeout(() => {
+                modal.style.opacity = '1';
+                
+                if(type === 'teddy') {
+                    document.getElementById('teddy-box').classList.add('open');
+                    const video = document.getElementById('teddy-video');
+                    video.play().catch(e => console.log("Autoplay blocked."));
+                    setTimeout(() => document.getElementById('teddy-text').style.opacity = '1', 1500);
+                } else if(type === 'promise') {
+                    document.getElementById('promise-envelope').classList.add('open');
+                } else if(type === 'kiss') {
+                    const box = document.getElementById('kiss-box');
+                    box.classList.add('open');
+                    particleInterval = setInterval(() => spawnParticle('💋'), 300);
+                } else if(type === 'valentine') {
+                    const frame = document.getElementById('valentine-frame-el');
+                    const msg = document.getElementById('valentine-message');
+                    const video = document.getElementById('val-video');
+                    
+                    frame.style.opacity = '1';
+                    frame.style.transform = 'translateY(0) rotate(-2deg)';
+                    msg.style.opacity = '1';
+                    video.play().catch(e => console.log("Autoplay blocked."));
+                    particleInterval = setInterval(() => spawnParticle('❤️'), 400);
+                }
+            }, 50);
+        }
+
+        function spawnParticle(emoji) {
+            const particle = document.createElement('div');
+            particle.className = 'particle-emoji';
+            particle.textContent = emoji;
+            particle.style.left = (Math.random() * 80 + 10) + 'vw';
+            particle.style.top = '90vh';
+            
+            const randomX = (Math.random() - 0.5) * 300;
+            const randomRotation = (Math.random() - 0.5) * 120;
+            
+            particle.style.setProperty('--x', `${randomX}px`);
+            particle.style.setProperty('--r', `${randomRotation}deg`);
+            particle.style.animation = `flyParticle 2.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards`;
+            
+            document.body.appendChild(particle);
+            setTimeout(() => particle.remove(), 2500);
+        }
+
+        function hideModal(type) {
+            const modal = document.getElementById(`${type}-modal`);
+            modal.style.opacity = '0';
+            
+            if(particleInterval) clearInterval(particleInterval);
+
+            setTimeout(() => {
+                modal.style.display = 'none';
+                if(type === 'teddy') {
+                    document.getElementById('teddy-box').classList.remove('open');
+                    document.getElementById('teddy-text').style.opacity = '0';
+                    document.getElementById('teddy-video').pause();
+                } else if(type === 'promise') {
+                    document.getElementById('promise-envelope').classList.remove('open');
+                } else if(type === 'kiss') {
+                    document.getElementById('kiss-box').classList.remove('open');
+                } else if(type === 'valentine') {
+                    document.getElementById('valentine-frame-el').style.opacity = '0';
+                    document.getElementById('valentine-message').style.opacity = '0';
+                    document.getElementById('val-video').pause();
+                }
+            }, 500);
+        }
+
+        window.onload = () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('v') === 'bnwakfuea') {
+                unlock();
+            }
+        };
+    </script>
+</body>
+</html>
